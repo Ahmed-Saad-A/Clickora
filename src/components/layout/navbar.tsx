@@ -2,7 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShoppingCart, Search, User, Menu, X } from "lucide-react";
+import {
+  ShoppingCart,
+  Search,
+  User,
+  Menu,
+  X,
+  Car,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components";
 import {
   NavigationMenu,
@@ -11,11 +19,13 @@ import {
   NavigationMenuList,
 } from "@/components";
 import { cn } from "@/lib/utils";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import { cartContext } from "@/context/cartContext";
 
 export function Navbar() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { cartCount, isCartLoading } = useContext(cartContext);
 
   const navItems = [
     { href: "/products", label: "Products" },
@@ -71,13 +81,21 @@ export function Navbar() {
             </Button>
 
             {/* Shopping Cart */}
-            <Button variant="ghost" size="icon" className="relative">
-              <ShoppingCart className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 aspect-square w-fit rounded-full bg-primary text-xs text-primary-foreground flex items-center justify-center">
-                99+
-              </span>
-              <span className="sr-only">Shopping cart</span>
-            </Button>
+            <Link href={"/Cart"}>
+              <Button variant="ghost" size="icon" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                <span className="absolute p-1 -top-1 -right-1 aspect-square w-fit rounded-full bg-primary text-xs text-primary-foreground flex items-center justify-center">
+                  {isCartLoading ? (
+                    <Loader2 className="animate-spin" />
+                  ) : cartCount! > 99 ? (
+                    "99+"
+                  ) : (
+                    cartCount
+                  )}
+                </span>
+                <span className="sr-only">Shopping cart</span>
+              </Button>
+            </Link>
 
             {/* Mobile Menu */}
             <Button

@@ -1,7 +1,7 @@
 
-import { AddProductToCartResponse } from "@/interfaces/Cart";
+import { AddProductToCartResponse, CartResponse } from "@/interfaces/Cart";
 import { ProductsResponse, SingleBrandResponse, SingleProductResponse } from "@/types";
-import { promises } from "dns";
+
 
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -47,5 +47,46 @@ class ServicesApi {
       }
     ).then((res) => res.json());
   }
+
+
+  async getUserCart(): Promise<CartResponse> {
+    return await fetch(
+      this.#baseUrl + "api/v1/cart",{
+        headers: this.#getHeaders(),
+      }
+    ).then((res) => res.json());
+  }
+
+
+  async removeCartItem(productId: string): Promise<CartResponse> {
+    return await fetch(
+      this.#baseUrl + "api/v1/cart/" + productId,{
+        method: "DELETE",
+        headers: this.#getHeaders(),
+      }
+    ).then((res) => res.json());
+  }
+
+
+  async clearCart(): Promise<CartResponse> {
+    return await fetch(
+      this.#baseUrl + "api/v1/cart",{
+        method: "DELETE",
+        headers: this.#getHeaders(),
+      }
+    ).then((res) => res.json());  
+  }
+
+  async updateCartProductCount(productId: string, count: number): Promise<CartResponse> {
+    return await fetch(
+      this.#baseUrl + "api/v1/cart/" + productId,{
+        method: "PUT",
+        body: JSON.stringify({ count }),  
+        headers: this.#getHeaders(),
+      }
+    ).then((res) => res.json());  
+  }
+
+
 }
 export const servicesApi = new ServicesApi();
