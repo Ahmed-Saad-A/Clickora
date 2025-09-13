@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "../ui";
 import { Loader2, Minus, Plus, Trash2 } from "lucide-react";
 import { formatPrice } from "@/helpers/currency";
@@ -12,6 +12,7 @@ import {
   CartResponse,
 } from "@/interfaces/Cart";
 import { servicesApi } from "@/Services/api";
+import { useDebounce } from "@uidotdev/usehooks";
 
 interface CartProductProps {
   item: CartItem<CartProductI>;
@@ -21,9 +22,8 @@ interface CartProductProps {
 const CartProduct = ({ item, setInnerResponse }: CartProductProps) => {
   const [isRemoving, setIsRemoving] = useState(false);
   const [itemCount, setItemCount] = useState(item.count);
-  const [timeOutId, setTimeOutId] = useState<NodeJS.Timeout>();
-  const [isIncrementing, setIsIncrementing] = useState(false);
-  const [isDecrementing, setIsDecrementing] = useState(false);
+
+  const delayItemCount = useDebounce(itemCount, 500);
 
   async function handleRemoveItem() {
     setIsRemoving(true);
@@ -32,29 +32,36 @@ const CartProduct = ({ item, setInnerResponse }: CartProductProps) => {
     setIsRemoving(false);
   }
 
-  function handleUpdateCount(count: number, type: "inc" | "dec") {
-    clearTimeout(timeOutId);
+  async function handleUpdateCount(count: number) {
 
-    if (type === "inc") setIsIncrementing(true);
-    if (type === "dec") setIsDecrementing(true);
-
+    const response = await servicesApi.updateCartProductCount(item.product._id, count);
+    
+    setInnerResponse(response);
+    console.log("🚀 ~ handleUpdateCount ~ response:", response.data.products);
     setItemCount(count);
-
-    const id = setTimeout(async () => {
-      try {
-        const response = await servicesApi.updateCartProductCount(
-          item.product._id,
-          count
-        );
-        setInnerResponse(response);
-      } finally {
-        if (type === "inc") setIsIncrementing(false);
-        if (type === "dec") setIsDecrementing(false);
-      }
-    }, 500);
-
-    setTimeOutId(id);
+    console.log("🚀 ~ handleUpdateCount ~ setItemCount(count);:", setItemCount(count))
+    console.log(item.count);
+    
   }
+
+  // useEffect(() => {
+  //   const updateCart = async () => {
+  //     if (delayItemCount !== item.count) {
+  //       const response = await servicesApi.updateCartProductCount(
+  //         item.product._id,
+  //         delayItemCount
+  //       );
+  //        setInnerResponse({
+  //       status: response.status,
+  //       numOfCartItems: response.numOfCartItems,
+  //       cartId: response.cartId,
+  //       data: response.data, // data هي CartData<CartProduct>
+  //     });
+  //       console.log("🚀 ~ updateCart ~ response:", response)
+  //     }
+  //   };
+  //   updateCart();
+  // }, [delayItemCount]);
 
   return (
     <div key={item._id} className="flex gap-4 p-4 border rounded-lg">
@@ -96,29 +103,21 @@ const CartProduct = ({ item, setInnerResponse }: CartProductProps) => {
 
         <div className="flex items-center gap-2">
           <Button
-            disabled={itemCount <= 1 || isDecrementing}
-            onClick={() => handleUpdateCount(itemCount - 1, "dec")}
+            disabled={itemCount <= 1}
+            onClick={() => handleUpdateCount(itemCount - 1)}
             variant="outline"
             size="sm"
           >
-            {isDecrementing ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <Minus className="h-4 w-4" />
-            )}
+            <Minus className="h-4 w-4" />
           </Button>
           <span className="w-8 text-center">{item.count}</span>
           <Button
-            disabled={itemCount == item.product.quantity || isIncrementing}
-            onClick={() => handleUpdateCount(itemCount + 1, "inc")}
+            disabled={itemCount == item.product.quantity}
+            onClick={() => handleUpdateCount(itemCount + 1)}
             variant="outline"
             size="sm"
           >
-            {isIncrementing ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <Plus className="h-4 w-4" />
-            )}
+            <Plus className="h-4 w-4" />
           </Button>
         </div>
       </div>
