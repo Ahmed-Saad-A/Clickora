@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   ShoppingCart,
   Search,
@@ -19,12 +19,14 @@ import {
   NavigationMenuList,
 } from "@/components";
 import { cn } from "@/lib/utils";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { cartContext } from "@/context/cartContext";
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { cartCount, isCartLoading } = useContext(cartContext);
 
   const navItems = [
@@ -32,6 +34,22 @@ export function Navbar() {
     { href: "/brands", label: "Brands" },
     { href: "/categories", label: "Categories" },
   ];
+
+  useEffect(() => {
+    // Basic auth check via localStorage token set on login
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+      setIsAuthenticated(Boolean(token));
+    } catch {}
+  }, [pathname]);
+
+  function handleLogout() {
+    try {
+      localStorage.removeItem("auth_token");
+    } catch {}
+    setIsAuthenticated(false);
+    router.push("/");
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -74,11 +92,35 @@ export function Navbar() {
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-2">
-            {/* User Account */}
-            <Button variant="ghost" size="icon">
-              <User className="h-5 w-5" />
-              <span className="sr-only">Account</span>
-            </Button>
+            {/* Auth Buttons */}
+            {isAuthenticated ? (
+              <>
+                <Button variant="outline" onClick={handleLogout}>
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                {pathname.startsWith("/auth/login") ? (
+                  <Button asChild>
+                    <Link href="/auth/register">Sign up</Link>
+                  </Button>
+                ) : pathname.startsWith("/auth/register") ? (
+                  <Button asChild>
+                    <Link href="/auth/login">Sign in</Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="outline" asChild>
+                      <Link href="/auth/login">Sign in</Link>
+                    </Button>
+                    <Button asChild>
+                      <Link href="/auth/register">Sign up</Link>
+                    </Button>
+                  </>
+                )}
+              </>
+            )}
 
             {/* Shopping Cart */}
             <Link href={"/Cart"}>

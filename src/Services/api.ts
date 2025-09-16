@@ -1,6 +1,17 @@
 
 import { AddProductToCartResponse, CartResponse } from "@/interfaces/Cart";
 import { ProductsResponse, SingleBrandResponse, SingleProductResponse } from "@/types";
+import { 
+  AddressResponse, 
+  CreateAddressRequest, 
+  CreateAddressResponse 
+} from "@/interfaces/address";
+import { 
+  CreateCashOrderRequest,
+  CreateCashOrderResponse,
+  CreateCheckoutSessionRequest,
+  CreateCheckoutSessionResponse
+} from "@/interfaces/order";
 
 
 
@@ -16,7 +27,7 @@ class ServicesApi {
     return {
       "content-type": "application/json",
       token:
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YWYxMjJmZmUxZDBkYWEzOGQxNDhmZCIsIm5hbWUiOiJNb2hhbWVkIEFiZCBFbCBNb2F0eSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzU2MzAzOTQzLCJleHAiOjE3NjQwNzk5NDN9.NckDzfKxU4EVmLKHg2GYR2lklfuKhAgEBKSr_b7VJ_U",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YzU0YzczMWQzZWE2NTRkNTcwM2UxYSIsIm5hbWUiOiJBaG1lZCBTYWFkIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NTc3ODgwNjgsImV4cCI6MTc2NTU2NDA2OH0.vpR-to00SNiQX2g3I_raofY_5_57NgQlNUIoBooQODs",
     };
   }
 
@@ -87,6 +98,62 @@ class ServicesApi {
     ).then((res) => res.json());  
   }
 
+  // Address APIs
+  async getUserAddresses(): Promise<AddressResponse> {
+    return await fetch(
+      this.#baseUrl + "api/v1/addresses",
+      {
+        headers: this.#getHeaders(),
+      }
+    ).then((res) => res.json());
+  }
+
+  async createAddress(addressData: CreateAddressRequest): Promise<CreateAddressResponse> {
+    return await fetch(
+      this.#baseUrl + "api/v1/addresses",
+      {
+        method: "POST",
+        body: JSON.stringify(addressData),
+        headers: this.#getHeaders(),
+      }
+    ).then((res) => res.json());
+  }
+
+  // Order APIs
+  async createCashOrder(orderData: CreateCashOrderRequest): Promise<CreateCashOrderResponse> {
+    return await fetch(
+      this.#baseUrl + "api/v1/orders",
+      {
+        method: "POST",
+        body: JSON.stringify(orderData),
+        headers: this.#getHeaders(),
+      }
+    ).then((res) => res.json());
+  }
+
+  async createCheckoutSession(sessionData: CreateCheckoutSessionRequest): Promise<CreateCheckoutSessionResponse> {
+    return await fetch(
+      this.#baseUrl + "api/v1/orders/checkout-session",
+      {
+        method: "POST",
+        body: JSON.stringify(sessionData),
+        headers: this.#getHeaders(),
+      }
+    ).then((res) => res.json());
+  }
+
+  async signIn(email: string, password: string) {
+    return await fetch(
+      this.#baseUrl + "api/v1/auth/signin",
+      {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+        headers: this.#getHeaders(),
+      }
+    ).then((res) => res.json());
+  }
 
 }
+
+
 export const servicesApi = new ServicesApi();
