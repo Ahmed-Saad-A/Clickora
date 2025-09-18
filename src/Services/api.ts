@@ -176,6 +176,37 @@ class ServicesApi {
     });
     return res.json();
   }
+
+  async getCategories(): Promise<{ data: { _id: string; name: string; slug: string; }[] }> {
+    const res = await fetch(this.#baseUrl + "api/v1/categories", {
+    });
+    return res.json();
+  }
+
+  async getSpecificCategory(categoryId: string): Promise<{ data: { _id: string; name: string; slug: string; } }> {
+    const res = await fetch(this.#baseUrl + "api/v1/categories/" + categoryId, {
+    });
+    return res.json();
+  }
+
+  async addWishlistItem(productId: string): Promise<{ status: "success" | "error"; message: string; }> {
+    return await fetch(
+      this.#baseUrl + "api/v1/wishlist",{
+        method: "POST",
+        body: JSON.stringify({ productId }),
+        headers: this.#getHeaders(),
+      }
+    ).then((res) => res.json());
+  }
+
+  async removeWishlistItem(productId: string): Promise<{ status: "success" | "error"; message: string; }> {
+    return await fetch(
+      this.#baseUrl + "api/v1/wishlist/" + productId,{
+        method: "DELETE",
+        headers: this.#getHeaders(),
+      }
+    ).then((res) => res.json());
+  }
 }
 
 
