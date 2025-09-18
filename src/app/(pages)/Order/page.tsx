@@ -1,9 +1,9 @@
 import React from 'react'
 
-const page = () => {
+const order = () => {
   return (
-    <div>page</div>
+    <div>order</div>
   )
 }
 
-export default page
+export default order
