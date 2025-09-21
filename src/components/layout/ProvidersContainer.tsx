@@ -1,6 +1,7 @@
 "use client";
 
 import CartContextProvider from "@/context/cartContext";
+import WishlistContextProvider from "@/context/wishlistContext";
 import { store } from "@/Redux/Slices/store";
 import React, { ReactNode } from "react";
 import { Toaster } from "react-hot-toast";
@@ -10,8 +11,10 @@ const ProvidersContainer = ({ children }: { children: ReactNode }) => {
   return (
     <Provider store={store}>
       <CartContextProvider>
-        {children}
-        <Toaster />
+        <WishlistContextProvider>
+          {children}
+          <Toaster />
+        </WishlistContextProvider>
       </CartContextProvider>
     </Provider>
   );

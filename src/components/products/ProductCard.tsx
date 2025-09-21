@@ -4,11 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/interfaces";
 import { Button } from "@/components/ui/button";
-import { Star, ShoppingCart, Heart, Loader2 } from "lucide-react";
+import { ShoppingCart, Heart, Loader2 } from "lucide-react";
 import { renderStars } from "@/helpers/rating";
 import { formatPrice } from "@/helpers/currency";
 import { useContext, useState } from "react";
 import { cartContext } from "@/context/cartContext";
+import { wishlistContext } from "@/context/wishlistContext";
 
 interface ProductCardProps {
   product: Product;
@@ -18,13 +19,18 @@ interface ProductCardProps {
 export function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
   const [isAddingToCart, setIsAddingToCart] = useState<boolean>(false);
   const { setCartCount, handleAddToCart } = useContext(cartContext);
+  const { toggleWishlistItem, isInWishlist } = useContext(wishlistContext);
 
   if (viewMode === "list") {
     return (
       <div className="flex gap-4 p-4 border rounded-lg hover:shadow-md transition-shadow">
         <div className="relative w-32 h-32 flex-shrink-0">
           <Image
-            src={product.imageCover}
+            src={
+              product.imageCover.startsWith("http")
+                ? product.imageCover
+                : `https://ecommerce.routemisr.com/Route-Academy-products/${product.imageCover}`
+            }
             alt={product.title}
             fill
             className="object-cover rounded-md"
@@ -42,8 +48,18 @@ export function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
                 {product.title}
               </Link>
             </h3>
-            <Button variant="ghost" size="sm">
-              <Heart className="h-4 w-4" />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => toggleWishlistItem(product._id)}
+            >
+              <Heart
+                className={`h-4 w-4 ${
+                  isInWishlist(product._id)
+                    ? "fill-red-500 text-red-500"
+                    : "text-muted-foreground hover:text-red-500"
+                }`}
+              />
             </Button>
           </div>
 
@@ -111,7 +127,11 @@ export function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
       {/* Product Image */}
       <div className="relative aspect-square overflow-hidden">
         <Image
-          src={product.imageCover}
+          src={
+            product.imageCover.startsWith("http")
+              ? product.imageCover
+              : `https://ecommerce.routemisr.com/Route-Academy-products/${product.imageCover}`
+          }
           alt={product.title}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -122,9 +142,16 @@ export function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
         <Button
           variant="ghost"
           size="sm"
-          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 hover:bg-white"
+          className="absolute top-2 right-2  transition-opacity bg-white/80 hover:bg-white"
+          onClick={() => toggleWishlistItem(product._id)}
         >
-          <Heart className="h-4 w-4" />
+          <Heart
+            className={`h-4 w-4 ${
+              isInWishlist(product._id)
+                ? "fill-red-500 text-red-500"
+                : "text-muted-foreground hover:text-red-500"
+            }`}
+          />
         </Button>
 
         {/* Badge for sold items */}

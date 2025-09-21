@@ -16,6 +16,7 @@ import { BrandsResponse } from "@/types";
 
 
 
+
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 class ServicesApi {
@@ -207,6 +208,15 @@ class ServicesApi {
       }
     ).then((res) => res.json());
   }
+
+  async getWishlist(): Promise<{ data: { _id: string; name: string; price: number; description: string; quantity: number; sold: number; images: string[]; category: { _id: string; name: string; slug: string; }; brand: { _id: string; name: string; slug: string; }; }[] }> {
+    return await fetch(
+      this.#baseUrl + "api/v1/wishlist",{
+        headers: this.#getHeaders(),
+      }
+    ).then((res) => res.json());
+  }
+
 }
 
 
