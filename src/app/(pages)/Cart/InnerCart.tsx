@@ -90,7 +90,7 @@ const InnerCart = ({ response }: InnerCartProps) => {
             </div>
 
             <Button className="w-full" size="lg" asChild>
-              <Link href="/Address">Proceed to Checkout</Link>
+              <Link href="/address">Proceed to Checkout</Link>
             </Button>
 
             <Button variant="outline" className="w-full mt-2" asChild>

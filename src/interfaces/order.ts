@@ -1,5 +1,5 @@
 export interface Order {
-  _id: string;
+  cartId: string;
   user: string;
   cartItems: CartItem[];
   totalOrderPrice: number;
@@ -15,31 +15,24 @@ export interface Order {
 }
 
 export interface CartItem {
-  _id: string;
+  cartId: string;
   product: string;
   count: number;
   price: number;
 }
 
 export interface Address {
-  _id: string;
-  alias: string;
+  cartId: string;
   details: string;
   phone: string;
   city: string;
-  postalCode: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
 }
 
 export interface CreateCashOrderRequest {
   shippingAddress: {
-    alias: string;
     details: string;
     phone: string;
     city: string;
-    postalCode: string;
   };
 }
 
@@ -50,11 +43,9 @@ export interface CreateCashOrderResponse {
 
 export interface CreateCheckoutSessionRequest {
   shippingAddress: {
-    alias: string;
     details: string;
     phone: string;
     city: string;
-    postalCode: string;
   };
 }
 

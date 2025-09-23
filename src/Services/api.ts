@@ -100,7 +100,7 @@ class ServicesApi {
     ).then((res) => res.json());  
   }
 
-  // Address APIs
+  
   async getUserAddresses(): Promise<AddressResponse> {
     return await fetch(
       this.#baseUrl + "api/v1/addresses",
@@ -121,10 +121,19 @@ class ServicesApi {
     ).then((res) => res.json());
   }
 
-
-  async createCashOrder(orderData: CreateCashOrderRequest): Promise<CreateCashOrderResponse> {
+  async removeAddress(addressId: string): Promise<AddressResponse> {
     return await fetch(
-      this.#baseUrl + "api/v1/orders",
+      this.#baseUrl + "api/v1/addresses/" + addressId,
+      {
+        method: "DELETE",
+        headers: this.#getHeaders(),
+      }
+    ).then((res) => res.json());
+  }
+
+  async createCashOrder(orderData: CreateCashOrderRequest, cartId: string): Promise<CreateCashOrderResponse> {
+    return await fetch(
+      this.#baseUrl + "api/v1/orders/" + cartId,
       {
         method: "POST",
         body: JSON.stringify(orderData),
@@ -133,9 +142,9 @@ class ServicesApi {
     ).then((res) => res.json());
   }
 
-  async createCheckoutSession(sessionData: CreateCheckoutSessionRequest): Promise<CreateCheckoutSessionResponse> {
+  async createCheckoutSession(sessionData: CreateCheckoutSessionRequest, cartId: string): Promise<CreateCheckoutSessionResponse> {
     return await fetch(
-      this.#baseUrl + "api/v1/orders/checkout-session",
+      this.#baseUrl + "api/v1/orders/checkout-session/" + cartId + '?url=http://localhost:3000',
       {
         method: "POST",
         body: JSON.stringify(sessionData),
