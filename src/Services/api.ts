@@ -1,18 +1,19 @@
 
 import { AddProductToCartResponse, CartResponse } from "@/interfaces/Cart";
 import { ProductsResponse, SingleBrandResponse, SingleProductResponse } from "@/types";
-import { 
-  AddressResponse, 
-  CreateAddressRequest, 
-  CreateAddressResponse 
+import {
+  AddressResponse,
+  CreateAddressRequest,
+  CreateAddressResponse
 } from "@/interfaces/address";
-import { 
+import {
   CreateCashOrderRequest,
   CreateCashOrderResponse,
   CreateCheckoutSessionRequest,
   CreateCheckoutSessionResponse
 } from "@/interfaces/order";
 import { BrandsResponse } from "@/types";
+import { getSession } from "next-auth/react";
 
 
 
@@ -25,17 +26,25 @@ class ServicesApi {
     this.#baseUrl = baseUrl ?? "";
   }
 
-  #getHeaders() {
+  async #getHeaders() {
+    const session = await getSession();
+    const token = session?.accessToken || "";
+    
     return {
       "content-type": "application/json",
-      token:
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YzU0YzczMWQzZWE2NTRkNTcwM2UxYSIsIm5hbWUiOiJBaG1lZCBTYWFkIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NTc3ODgwNjgsImV4cCI6MTc2NTU2NDA2OH0.vpR-to00SNiQX2g3I_raofY_5_57NgQlNUIoBooQODs",
+      token: token
+    };
+  }
+
+  #getHeadersWithoutAuth() {
+    return {
+      "content-type": "application/json"
     };
   }
 
   async getAllProducts(): Promise<ProductsResponse> {
     const res = await fetch(this.#baseUrl + "api/v1/products", {
-      headers: this.#getHeaders(),
+      headers: await this.#getHeaders(),
     });
 
     if (!res.ok) throw new Error("Failed to fetch products");
@@ -45,7 +54,7 @@ class ServicesApi {
 
   async getProductDetails(productId: string): Promise<SingleProductResponse> {
     const res = await fetch(this.#baseUrl + "api/v1/products/" + productId, {
-      headers: this.#getHeaders(),
+      headers: await this.#getHeaders(),
     });
     return res.json();
   }
@@ -53,59 +62,59 @@ class ServicesApi {
 
   async addProductToCart(productId: string): Promise<AddProductToCartResponse> {
     return await fetch(
-      this.#baseUrl + "api/v1/cart",{
-        method: "POST",
-        body: JSON.stringify({ productId }),
-        headers: this.#getHeaders(),
-      }
+      this.#baseUrl + "api/v1/cart", {
+      method: "POST",
+      body: JSON.stringify({ productId }),
+      headers: await this.#getHeaders(),
+    }
     ).then((res) => res.json());
   }
 
 
   async getUserCart(): Promise<CartResponse> {
     return await fetch(
-      this.#baseUrl + "api/v1/cart",{
-        headers: this.#getHeaders(),
-      }
+      this.#baseUrl + "api/v1/cart", {
+      headers: await this.#getHeaders(),
+    }
     ).then((res) => res.json());
   }
 
 
   async removeCartItem(productId: string): Promise<CartResponse> {
     return await fetch(
-      this.#baseUrl + "api/v1/cart/" + productId,{
-        method: "DELETE",
-        headers: this.#getHeaders(),
-      }
+      this.#baseUrl + "api/v1/cart/" + productId, {
+      method: "DELETE",
+      headers: await this.#getHeaders(),
+    }
     ).then((res) => res.json());
   }
 
 
   async clearCart(): Promise<CartResponse> {
     return await fetch(
-      this.#baseUrl + "api/v1/cart",{
-        method: "DELETE",
-        headers: this.#getHeaders(),
-      }
-    ).then((res) => res.json());  
+      this.#baseUrl + "api/v1/cart", {
+      method: "DELETE",
+      headers: await this.#getHeaders(),
+    }
+    ).then((res) => res.json());
   }
 
   async updateCartProductCount(productId: string, count: number): Promise<CartResponse> {
     return await fetch(
-      this.#baseUrl + "api/v1/cart/" + productId,{
-        method: "PUT",
-        body: JSON.stringify({ count }),  
-        headers: this.#getHeaders(),
-      }
-    ).then((res) => res.json());  
+      this.#baseUrl + "api/v1/cart/" + productId, {
+      method: "PUT",
+      body: JSON.stringify({ count }),
+      headers: await this.#getHeaders(),
+    }
+    ).then((res) => res.json());
   }
 
-  
+
   async getUserAddresses(): Promise<AddressResponse> {
     return await fetch(
       this.#baseUrl + "api/v1/addresses",
       {
-        headers: this.#getHeaders(),
+        headers: await this.#getHeaders(),
       }
     ).then((res) => res.json());
   }
@@ -116,7 +125,7 @@ class ServicesApi {
       {
         method: "POST",
         body: JSON.stringify(addressData),
-        headers: this.#getHeaders(),
+        headers: await this.#getHeaders(),
       }
     ).then((res) => res.json());
   }
@@ -126,7 +135,7 @@ class ServicesApi {
       this.#baseUrl + "api/v1/addresses/" + addressId,
       {
         method: "DELETE",
-        headers: this.#getHeaders(),
+        headers: await this.#getHeaders(),
       }
     ).then((res) => res.json());
   }
@@ -137,7 +146,7 @@ class ServicesApi {
       {
         method: "POST",
         body: JSON.stringify(orderData),
-        headers: this.#getHeaders(),
+        headers: await this.#getHeaders(),
       }
     ).then((res) => res.json());
   }
@@ -148,29 +157,16 @@ class ServicesApi {
       {
         method: "POST",
         body: JSON.stringify(sessionData),
-        headers: this.#getHeaders(),
+        headers: await this.#getHeaders(),
       }
     ).then((res) => res.json());
   }
 
-  async signIn(email: string, password: string) {
+  async getUserOrders(userId: string): Promise<{ data: { _id: string; cartId: string; totalOrderPrice: number; totalAfterDiscount: number; paymentMethodType: string; isPaid: boolean; isDelivered: boolean; createdAt: string; }[] }> {
     return await fetch(
-      this.#baseUrl + "api/v1/auth/signin",
+      this.#baseUrl + "api/v1/orders/user/" + userId,
       {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-        headers: this.#getHeaders(),
-      }
-    ).then((res) => res.json());
-  }
-
-  async signUp(name: string, email: string, password: string, rePassword: string, phone: string) {
-    return await fetch(
-      this.#baseUrl + "api/v1/auth/signup",
-      {
-        method: "POST",
-        body: JSON.stringify({ name, email, password, rePassword, phone }),
-        headers: this.#getHeaders(),
+        headers: await this.#getHeaders(),
       }
     ).then((res) => res.json());
   }
@@ -201,30 +197,118 @@ class ServicesApi {
 
   async addWishlistItem(productId: string): Promise<{ status: "success" | "error"; message: string; }> {
     return await fetch(
-      this.#baseUrl + "api/v1/wishlist",{
-        method: "POST",
-        body: JSON.stringify({ productId }),
-        headers: this.#getHeaders(),
-      }
+      this.#baseUrl + "api/v1/wishlist", {
+      method: "POST",
+      body: JSON.stringify({ productId }),
+      headers: await this.#getHeaders(),
+    }
     ).then((res) => res.json());
   }
 
   async removeWishlistItem(productId: string): Promise<{ status: "success" | "error"; message: string; }> {
     return await fetch(
-      this.#baseUrl + "api/v1/wishlist/" + productId,{
-        method: "DELETE",
-        headers: this.#getHeaders(),
-      }
+      this.#baseUrl + "api/v1/wishlist/" + productId, {
+      method: "DELETE",
+      headers: await this.#getHeaders(),
+    }
     ).then((res) => res.json());
   }
 
   async getWishlist(): Promise<{ data: { _id: string; name: string; price: number; description: string; quantity: number; sold: number; images: string[]; category: { _id: string; name: string; slug: string; }; brand: { _id: string; name: string; slug: string; }; }[] }> {
     return await fetch(
-      this.#baseUrl + "api/v1/wishlist",{
-        headers: this.#getHeaders(),
+      this.#baseUrl + "api/v1/wishlist", {
+      headers: await this.#getHeaders(),
+    }
+    ).then((res) => res.json());
+  }
+
+  async signIn(email: string, password: string) {
+    return await fetch(
+      this.#baseUrl + "api/v1/auth/signin",
+      {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+        headers: this.#getHeadersWithoutAuth(),
       }
     ).then((res) => res.json());
   }
+
+  async signUp(name: string, email: string, password: string, rePassword: string, phone: string) {
+    return await fetch(
+      this.#baseUrl + "api/v1/auth/signup",
+      {
+        method: "POST",
+        body: JSON.stringify({ name, email, password, rePassword, phone }),
+        headers: this.#getHeadersWithoutAuth(),
+      }
+    ).then((res) => res.json());
+  }
+
+  async forgotPassword(email: string) {
+    return await fetch(
+      this.#baseUrl + "api/v1/auth/forgotPasswords",
+      {
+        method: "POST",
+        body: JSON.stringify({ email }),
+        headers: this.#getHeadersWithoutAuth(),
+      }
+    ).then((res) => res.json());
+  }
+
+  async verifyResetCode(resetCode: string) {
+    return await fetch(
+      this.#baseUrl + "api/v1/auth/verifyResetCode",
+      {
+        method: "POST",
+        body: JSON.stringify({ resetCode }),
+        headers: this.#getHeadersWithoutAuth(),
+      }
+    ).then((res) => res.json());
+  }
+
+  async updatePassword(currentPassword: string, Password: string, rePassword: string) {
+    return await fetch(
+      this.#baseUrl + "api/v1/users/changeMyPassword",
+      {
+        method: "PUT",
+        body: JSON.stringify({ currentPassword, password: Password, rePassword }),
+        headers: await this.#getHeaders(),
+      }
+    ).then((res) => res.json());
+  }
+
+  async resetPassword(email: string, newPassword: string) {
+    return await fetch(
+      this.#baseUrl + "api/v1/auth/resetPassword",
+      {
+        method: "PUT",
+        body: JSON.stringify({ email, newPassword }),
+        headers: this.#getHeadersWithoutAuth(),
+      }
+    ).then((res) => res.json());
+  }
+
+  async updateUserProfile(name: string, email: string, phone: string) {
+    return await fetch(
+      this.#baseUrl + "api/v1/users/updateMe/",
+      {
+        method: "PUT",
+        body: JSON.stringify({ name, email, phone }),
+        headers: await this.#getHeaders(),
+      }
+    ).then((res) => res.json());
+  }
+
+  async verifyToken() {
+    return await fetch(
+      this.#baseUrl + "api/v1/auth/verifyToken",
+      {
+        headers: await this.#getHeaders(),
+      }
+    ).then((res) => res.json());
+  }
+
+
 
 }
 

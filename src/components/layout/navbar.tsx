@@ -17,17 +17,21 @@ import {
   NavigationMenuList,
 } from "@/components";
 import { cn } from "@/lib/utils";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { cartContext } from "@/context/cartContext";
 import { wishlistContext } from "@/context/wishlistContext";
+import { UserDropdown } from "./UserDropdown";
+import { useSession, signOut } from "next-auth/react";
 
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { data: session } = useSession();
   const { cartCount, isCartLoading } = useContext(cartContext);
   const { wishlistItems, isWishlistLoading } = useContext(wishlistContext);
+
+  const isAuthenticated = !!session;
 
   const navItems = [
     { href: "/products", label: "Products" },
@@ -35,21 +39,13 @@ export function Navbar() {
     { href: "/categories", label: "Categories" },
   ];
 
-  useEffect(() => {
-    try {
-      // const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
-      // setIsAuthenticated(Boolean(token));
-      setIsAuthenticated(true);
-    } catch {}
-  }, [pathname]);
+  const handleSignIn = () => {
+    router.replace("/auth/login");
+  };
 
-  function handleLogout() {
-    try {
-      localStorage.removeItem("auth_token");
-    } catch {}
-    setIsAuthenticated(false);
-    router.push("/");
-  }
+  const handleSignUp = () => {
+    router.replace("/auth/register");
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -126,30 +122,27 @@ export function Navbar() {
               </Button>
             </Link>
 
-            {/* Auth Buttons */}
+
+            {/* User Account Dropdown */}
             {isAuthenticated ? (
-              <>
-                <Button variant="outline" onClick={handleLogout}>
-                  Logout
-                </Button>
-              </>
+              <UserDropdown onLogout={() => signOut()} />
             ) : (
               <>
                 {pathname.startsWith("/auth/login") ? (
-                  <Button asChild>
-                    <Link href="/auth/register">Sign up</Link>
+                  <Button onClick={handleSignUp}>
+                    Sign up
                   </Button>
                 ) : pathname.startsWith("/auth/register") ? (
-                  <Button asChild>
-                    <Link href="/auth/login">Sign in</Link>
+                  <Button onClick={handleSignIn}>
+                    Sign in
                   </Button>
                 ) : (
                   <>
-                    <Button variant="outline" asChild>
-                      <Link href="/auth/login">Sign in</Link>
+                    <Button variant="outline" onClick={handleSignIn}>
+                      Sign in
                     </Button>
-                    <Button asChild>
-                      <Link href="/auth/register">Sign up</Link>
+                    <Button onClick={handleSignUp}>
+                      Sign up
                     </Button>
                   </>
                 )}
