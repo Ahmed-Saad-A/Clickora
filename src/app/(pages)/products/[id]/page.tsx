@@ -1,18 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { Product } from "@/interfaces";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
-import { ShoppingCart, Heart, Truck, Shield, RotateCcw, Loader, Loader2 } from "lucide-react";
+import {
+  ShoppingCart,
+  Heart,
+  Truck,
+  Shield,
+  RotateCcw,
+  Loader,
+  Loader2,
+} from "lucide-react";
 import Link from "next/link";
 import { renderStars } from "@/helpers/rating";
 import { SingleProductResponse } from "@/types";
 import { servicesApi } from "@/Services/api";
 import { formatPrice } from "@/helpers/currency";
 import toast from "react-hot-toast";
+import { cartContext } from "@/context/cartContext";
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -21,10 +30,10 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [addToCartLoading, setAddToCartLoading] = useState(false)
+  const { handleAddToCart } = useContext(cartContext);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
-
-    async function fetchProductDetails() {
+  async function fetchProductDetails() {
     setLoading(true);
     const response: SingleProductResponse = await servicesApi.getProductDetails(
       String(id!)
@@ -36,16 +45,6 @@ export default function ProductDetailPage() {
   useEffect(() => {
     fetchProductDetails();
   }, []);
-
-
-  async function handleToAddCart() {
-
-    setAddToCartLoading(true);
-    const response = await servicesApi.addProductToCart(product!._id);
-    toast.success(response.message);
-    setAddToCartLoading(false);
-    
-  }
 
   if (loading) {
     return (
@@ -143,7 +142,9 @@ export default function ProductDetailPage() {
                 {product.ratingsAverage} ({product.ratingsQuantity} reviews)
               </span>
             </div>
-            <span className="text-sm text-muted-foreground">{product.sold} sold</span>
+            <span className="text-sm text-muted-foreground">
+              {product.sold} sold
+            </span>
           </div>
 
           {/* Price */}
@@ -194,13 +195,16 @@ export default function ProductDetailPage() {
           {/* Action Buttons */}
           <div className="flex gap-4">
             <Button
+              onClick={() => handleAddToCart!(product._id, setIsAddingToCart)}
               size="lg"
               className="flex-1"
-              disabled={product.quantity === 0 || addToCartLoading}
-              onClick={handleToAddCart}
+              disabled={product.quantity === 0 || isAddingToCart}
             >
-              {addToCartLoading && <Loader2 className="animate-spin" />}
-              <ShoppingCart className="h-5 w-5 mr-2" />
+              {isAddingToCart ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <ShoppingCart className="h-5 w-5 mr-2" />
+              )}
               Add to Cart
             </Button>
             <Button variant="outline" size="lg">

@@ -4,9 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/interfaces";
 import { Button } from "@/components/ui/button";
-import { Star, ShoppingCart, Heart } from "lucide-react";
+import { Star, ShoppingCart, Heart, Loader2 } from "lucide-react";
 import { renderStars } from "@/helpers/rating";
 import { formatPrice } from "@/helpers/currency";
+import { useContext, useState } from "react";
+import { cartContext } from "@/context/cartContext";
 
 interface ProductCardProps {
   product: Product;
@@ -14,6 +16,9 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
+  const [isAddingToCart, setIsAddingToCart] = useState<boolean>(false);
+  const { setCartCount, handleAddToCart } = useContext(cartContext);
+
   if (viewMode === "list") {
     return (
       <div className="flex gap-4 p-4 border rounded-lg hover:shadow-md transition-shadow">
@@ -86,7 +91,12 @@ export function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
               </div>
             </div>
 
-            <Button>
+            <Button
+              onClick={() => handleAddToCart!(product._id, setIsAddingToCart)}
+              disabled={isAddingToCart || product.quantity == 0}
+              size="sm"
+            >
+              {isAddingToCart && <Loader2 className="animate-spin" />}
               <ShoppingCart className="h-4 w-4 mr-2" />
               Add to Cart
             </Button>
@@ -118,7 +128,7 @@ export function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
         </Button>
 
         {/* Badge for sold items */}
-        {100 > 100 && (
+        {product.quantity > 1000 && (
           <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
             Popular
           </div>
@@ -134,20 +144,21 @@ export function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
 
         {/* Title */}
         <h3 className="font-semibold text-sm mb-2 line-clamp-1 hover:text-primary transition-colors">
-          <Link href={`/products/${product.id}`} >{product.title}</Link>
+          <Link href={"/products/" + product._id}>{product.title}</Link>
         </h3>
 
         {/* Rating */}
         <div className="flex items-center gap-1 mb-2">
           <div className="flex">{renderStars(product.ratingsAverage)}</div>
-          <span className="text-xs text-muted-foreground">({product.ratingsQuantity})</span>
+          <span className="text-xs text-muted-foreground">
+            ({product.ratingsQuantity})
+          </span>
         </div>
 
         {/* Category */}
         <p className="text-xs text-muted-foreground mb-2">
           <Link
-            href={`/categories/${product.category._id}`}
-
+            href={""}
             className="hover:text-primary hover:underline transition-colors"
           >
             {product.category.name}
@@ -159,11 +170,19 @@ export function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
           <span className="text-lg font-bold text-primary">
             {formatPrice(product.price)}
           </span>
-          <span className="text-xs text-muted-foreground">{product.sold} sold</span>
+          <span className="text-xs text-muted-foreground">
+            {product.sold} sold
+          </span>
         </div>
 
         {/* Add to Cart Button */}
-        <Button className="w-full" size="sm">
+        <Button
+          onClick={() => handleAddToCart!(product._id, setIsAddingToCart)}
+          disabled={isAddingToCart || product.quantity == 0}
+          className="w-full"
+          size="sm"
+        >
+          {isAddingToCart && <Loader2 className="animate-spin" />}
           <ShoppingCart className="h-4 w-4 mr-2" />
           Add to Cart
         </Button>

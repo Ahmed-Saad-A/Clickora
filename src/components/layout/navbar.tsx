@@ -1,8 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ShoppingCart, Search, User, Menu, X } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  ShoppingCart,
+  Search,
+  User,
+  Menu,
+  X,
+  Car,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components";
 import {
   NavigationMenu,
@@ -11,17 +19,37 @@ import {
   NavigationMenuList,
 } from "@/components";
 import { cn } from "@/lib/utils";
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { cartContext } from "@/context/cartContext";
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { cartCount, isCartLoading } = useContext(cartContext);
 
   const navItems = [
     { href: "/products", label: "Products" },
     { href: "/brands", label: "Brands" },
     { href: "/categories", label: "Categories" },
   ];
+
+  useEffect(() => {
+    // Basic auth check via localStorage token set on login
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+      setIsAuthenticated(Boolean(token));
+    } catch {}
+  }, [pathname]);
+
+  function handleLogout() {
+    try {
+      localStorage.removeItem("auth_token");
+    } catch {}
+    setIsAuthenticated(false);
+    router.push("/");
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -64,20 +92,52 @@ export function Navbar() {
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-2">
-            {/* User Account */}
-            <Button variant="ghost" size="icon">
-              <User className="h-5 w-5" />
-              <span className="sr-only">Account</span>
-            </Button>
+            {/* Auth Buttons */}
+            {isAuthenticated ? (
+              <>
+                <Button variant="outline" onClick={handleLogout}>
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                {pathname.startsWith("/auth/login") ? (
+                  <Button asChild>
+                    <Link href="/auth/register">Sign up</Link>
+                  </Button>
+                ) : pathname.startsWith("/auth/register") ? (
+                  <Button asChild>
+                    <Link href="/auth/login">Sign in</Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="outline" asChild>
+                      <Link href="/auth/login">Sign in</Link>
+                    </Button>
+                    <Button asChild>
+                      <Link href="/auth/register">Sign up</Link>
+                    </Button>
+                  </>
+                )}
+              </>
+            )}
 
             {/* Shopping Cart */}
-            <Button variant="ghost" size="icon" className="relative">
-              <ShoppingCart className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 aspect-square w-fit rounded-full bg-primary text-xs text-primary-foreground flex items-center justify-center">
-                99+
-              </span>
-              <span className="sr-only">Shopping cart</span>
-            </Button>
+            <Link href={"/Cart"}>
+              <Button variant="ghost" size="icon" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                <span className="absolute p-1 -top-1 -right-1 aspect-square w-fit rounded-full bg-primary text-xs text-primary-foreground flex items-center justify-center">
+                  {isCartLoading ? (
+                    <Loader2 className="animate-spin" />
+                  ) : cartCount! > 99 ? (
+                    "99+"
+                  ) : (
+                    cartCount
+                  )}
+                </span>
+                <span className="sr-only">Shopping cart</span>
+              </Button>
+            </Link>
 
             {/* Mobile Menu */}
             <Button

@@ -5,3 +5,5 @@ export * from './api';
 export * from './brand';
 export * from './category';
 export * from './product';
+export * from './address';
+export * from './order';
