@@ -25,7 +25,7 @@ class ServicesApi {
   #token: string | null = null;
   
   constructor() {
-    this.#baseUrl = baseUrl ?? "";
+    this.#baseUrl = baseUrl || "https://ecommerce.routemisr.com/";
   }
 
   setToken(token: string | null) {
