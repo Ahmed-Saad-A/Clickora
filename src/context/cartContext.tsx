@@ -1,5 +1,5 @@
 "use client";
-import { servicesApi } from "@/Services/api";
+import { useApiService } from "@/hooks";
 import {
   createContext,
   Dispatch,
@@ -7,45 +7,107 @@ import {
   SetStateAction,
   useEffect,
   useState,
+  useCallback,
 } from "react";
 import toast from "react-hot-toast";
+import { useSession } from "next-auth/react";
 
-type cartContextProps = {
-  cartCount?: number;
-  setCartCount?: Dispatch<SetStateAction<number>>;
-  isCartLoading?: boolean;
-  handleAddToCart?: (productId: string, setIsAddingToCart: any) => void;
+type CartContextProps = {
+  cartCount: number;
+  setCartCount: Dispatch<SetStateAction<number>>;
+  isCartLoading: boolean;
+  handleAddToCart: (
+    productId: string,
+    setIsAddingToCart: Dispatch<SetStateAction<boolean>>
+  ) => Promise<void>;
 };
 
-export const cartContext = createContext<cartContextProps>({});
+export const cartContext = createContext<CartContextProps>({
+  cartCount: 0,
+  setCartCount: () => {},
+  isCartLoading: true,
+  handleAddToCart: async () => {},
+});
 
 export default function CartContextProvider({
   children,
 }: {
   children: ReactNode;
 }) {
-  const [cartCount, setCartCount] = useState(0);
-  const [isCartLoading, setIsCartLoading] = useState(true);
+  const [cartCount, setCartCount] = useState<number>(0);
+  const [isCartLoading, setIsCartLoading] = useState<boolean>(true);
+  const apiService = useApiService();
+  const { data: session, status } = useSession();
 
-  async function handleAddToCart(productId: string, setIsAddingToCart: any) {
-    setIsAddingToCart(true);
-    const response = await servicesApi.addProductToCart(productId);
-    setCartCount!(response.numOfCartItems);
-    setIsAddingToCart(false);
-    toast.success(response.message, {
-      position: "bottom-right",
-    });
-  }
-
-  async function getCart() {
-    const response = await servicesApi.getUserCart();
-    setCartCount(response.numOfCartItems);
-    setIsCartLoading(false);
-  }
+  const getCart = useCallback(async (): Promise<void> => {
+    setIsCartLoading(true);
+    try {
+      const response = await apiService.getUserCart();
+      if (response && typeof response.numOfCartItems === "number") {
+        setCartCount(response.numOfCartItems);
+      } else {
+        setCartCount(0);
+      }
+    } catch (err) {
+      console.error("getCart error:", err);
+      setCartCount(0);
+    } finally {
+      setIsCartLoading(false);
+    }
+  }, [apiService]);
 
   useEffect(() => {
     getCart();
-  }, []);
+  }, [getCart]);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      getCart();
+    } else if (status === "unauthenticated") {
+      setCartCount(0);
+    }
+  }, [status, getCart]);
+
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      const keysToListen = ["next-auth.session-token", "cart-updated", "auth-token"];
+      if (keysToListen.includes(e.key ?? "")) {
+        setTimeout(() => {
+          getCart();
+        }, 200);
+      }
+    };
+
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [getCart]);
+
+  const handleAddToCart = async (
+    productId: string,
+    setIsAddingToCart: Dispatch<SetStateAction<boolean>>
+  ): Promise<void> => {
+    try {
+      setIsAddingToCart(true);
+      const response = await apiService.addProductToCart(productId);
+      if (response && typeof response.numOfCartItems === "number") {
+        setCartCount(response.numOfCartItems);
+      } else {
+        await getCart();
+      }
+      toast.success(response.message || "Added to cart", {
+        position: "bottom-right",
+      });
+      try {
+        localStorage.setItem("cart-updated", String(Date.now()));
+      } catch (e) {
+      }
+    } catch (err) {
+      console.error("handleAddToCart error:", err);
+      toast.error("Failed to add to cart");
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
 
   return (
     <cartContext.Provider

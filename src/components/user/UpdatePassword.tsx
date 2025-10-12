@@ -27,7 +27,7 @@ export function UpdatePassword({ onSuccess }: UpdatePasswordProps) {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: "" }));
@@ -67,7 +67,7 @@ export function UpdatePassword({ onSuccess }: UpdatePasswordProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -81,6 +81,7 @@ export function UpdatePassword({ onSuccess }: UpdatePasswordProps) {
         formData.Password,
         formData.rePassword
       );
+      console.log("🚀 ~ handleSubmit ~ response:", response);
 
       if (response.status === "success") {
         setMessage({ type: "success", text: "Password updated successfully!" });
@@ -91,16 +92,27 @@ export function UpdatePassword({ onSuccess }: UpdatePasswordProps) {
         });
         onSuccess?.();
       } else {
-        setMessage({ type: "error", text: response.message || "Failed to update password" });
+        setMessage({
+          type: "error",
+          text: response.message || "Failed to update password"
+        });
       }
-    } catch (error: any) {
-      setMessage({ 
-        type: "error", 
-        text: error.message || "An error occurred while updating password" 
-      });
+    } catch (error) {
+      let errorMessage = "An error occurred while updating password";
+
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === "string") {
+        errorMessage = error;
+      } else if (typeof error === "object" && error !== null && "message" in error) {
+        errorMessage = String((error as { message?: string }).message);
+      }
+
+      setMessage({ type: "error", text: errorMessage });
     } finally {
       setIsLoading(false);
     }
+
   };
 
   return (
@@ -120,9 +132,8 @@ export function UpdatePassword({ onSuccess }: UpdatePasswordProps) {
                 name="currentPassword"
                 value={formData.currentPassword}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 pl-10 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${
-                  errors.currentPassword ? "border-destructive" : "border-border"
-                }`}
+                className={`w-full px-3 py-2 pl-10 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${errors.currentPassword ? "border-destructive" : "border-border"
+                  }`}
                 placeholder="Enter current password"
               />
               <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -150,9 +161,8 @@ export function UpdatePassword({ onSuccess }: UpdatePasswordProps) {
                 name="Password"
                 value={formData.Password}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 pl-10 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${
-                  errors.Password ? "border-destructive" : "border-border"
-                }`}
+                className={`w-full px-3 py-2 pl-10 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${errors.Password ? "border-destructive" : "border-border"
+                  }`}
                 placeholder="Enter new password"
               />
               <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -180,9 +190,8 @@ export function UpdatePassword({ onSuccess }: UpdatePasswordProps) {
                 name="rePassword"
                 value={formData.rePassword}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 pl-10 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${
-                  errors.rePassword ? "border-destructive" : "border-border"
-                }`}
+                className={`w-full px-3 py-2 pl-10 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${errors.rePassword ? "border-destructive" : "border-border"
+                  }`}
                 placeholder="Confirm new password"
               />
               <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -201,11 +210,10 @@ export function UpdatePassword({ onSuccess }: UpdatePasswordProps) {
         </div>
 
         {message && (
-          <div className={`flex items-center space-x-2 p-3 rounded-md ${
-            message.type === "success" 
-              ? "bg-green-50 text-green-800 border border-green-200" 
+          <div className={`flex items-center space-x-2 p-3 rounded-md ${message.type === "success"
+              ? "bg-green-50 text-green-800 border border-green-200"
               : "bg-red-50 text-red-800 border border-red-200"
-          }`}>
+            }`}>
             {message.type === "success" ? (
               <CheckCircle className="h-4 w-4" />
             ) : (

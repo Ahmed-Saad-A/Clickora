@@ -7,13 +7,13 @@ import {
   CreateAddressResponse
 } from "@/interfaces/address";
 import {
+  Order,
   CreateCashOrderRequest,
   CreateCashOrderResponse,
   CreateCheckoutSessionRequest,
   CreateCheckoutSessionResponse
 } from "@/interfaces/order";
 import { BrandsResponse } from "@/types";
-import { getSession } from "next-auth/react";
 
 
 
@@ -22,24 +22,26 @@ const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 class ServicesApi {
   #baseUrl: string = "";
+  #token: string | null = null;
+  
   constructor() {
     this.#baseUrl = baseUrl ?? "";
   }
 
-  async #getHeaders() {
-    const session = await getSession();
-    const token = session?.accessToken || "";
-    
-    return {
-      "content-type": "application/json",
-      token: token
-    };
+  setToken(token: string | null) {
+    this.#token = token;
   }
 
-  #getHeadersWithoutAuth() {
-    return {
-      "content-type": "application/json"
+  #getHeaders() {
+    const headers: Record<string, string> = {
+      "content-type": "application/json",
     };
+    
+    if (this.#token) {
+      headers.token = this.#token;
+    }
+    
+    return headers;
   }
 
   async getAllProducts(): Promise<ProductsResponse> {
@@ -162,7 +164,7 @@ class ServicesApi {
     ).then((res) => res.json());
   }
 
-  async getUserOrders(userId: string): Promise<{ data: { _id: string; cartId: string; totalOrderPrice: number; totalAfterDiscount: number; paymentMethodType: string; isPaid: boolean; isDelivered: boolean; createdAt: string; }[] }> {
+  async getUserOrders(userId: string): Promise<{ data: Order[] }> {
     return await fetch(
       this.#baseUrl + "api/v1/orders/user/" + userId,
       {
@@ -228,7 +230,9 @@ class ServicesApi {
       {
         method: "POST",
         body: JSON.stringify({ email, password }),
-        headers: this.#getHeadersWithoutAuth(),
+        headers: {
+          "content-type": "application/json",
+        },
       }
     ).then((res) => res.json());
   }
@@ -239,7 +243,9 @@ class ServicesApi {
       {
         method: "POST",
         body: JSON.stringify({ name, email, password, rePassword, phone }),
-        headers: this.#getHeadersWithoutAuth(),
+        headers: {
+          "content-type": "application/json",
+        },
       }
     ).then((res) => res.json());
   }
@@ -250,7 +256,9 @@ class ServicesApi {
       {
         method: "POST",
         body: JSON.stringify({ email }),
-        headers: this.#getHeadersWithoutAuth(),
+        headers: {
+          "content-type": "application/json",
+        },
       }
     ).then((res) => res.json());
   }
@@ -261,7 +269,9 @@ class ServicesApi {
       {
         method: "POST",
         body: JSON.stringify({ resetCode }),
-        headers: this.#getHeadersWithoutAuth(),
+        headers: {
+          "content-type": "application/json",
+        },
       }
     ).then((res) => res.json());
   }
@@ -283,7 +293,9 @@ class ServicesApi {
       {
         method: "PUT",
         body: JSON.stringify({ email, newPassword }),
-        headers: this.#getHeadersWithoutAuth(),
+        headers: {
+          "content-type": "application/json",
+        },
       }
     ).then((res) => res.json());
   }

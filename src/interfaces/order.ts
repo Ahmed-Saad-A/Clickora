@@ -1,9 +1,20 @@
 export interface Order {
-  cartId: string;
-  user: string;
+  _id: string;
+  user: {
+    _id: string;
+    name: string;
+    email: string;
+    phone: string;
+  };
   cartItems: CartItem[];
   totalOrderPrice: number;
-  shippingAddress: Address;
+  taxPrice: number;
+  shippingPrice: number;
+  shippingAddress: {
+    details: string;
+    phone: string;
+    city: string;
+  };
   paymentMethodType: 'cash' | 'card';
   isPaid: boolean;
   paidAt?: string;
@@ -11,14 +22,40 @@ export interface Order {
   deliveredAt?: string;
   createdAt: string;
   updatedAt: string;
+  id: number;
   __v: number;
 }
 
 export interface CartItem {
-  cartId: string;
-  product: string;
+  _id: string;
   count: number;
   price: number;
+  product: {
+    _id: string;
+    title: string;
+    imageCover: string;
+    category: {
+      _id: string;
+      name: string;
+      slug: string;
+      image: string;
+    };
+    brand: {
+      _id: string;
+      name: string;
+      slug: string;
+      image: string;
+    };
+    ratingsAverage: number;
+    ratingsQuantity: number;
+    subcategory: Array<{
+      _id: string;
+      name: string;
+      slug: string;
+      category: string;
+    }>;
+    id: string;
+  };
 }
 
 export interface Address {
