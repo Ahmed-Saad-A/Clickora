@@ -7,6 +7,7 @@ import InnerCart from "./InnerCart";
 export default async function Cart() {
   async function getUserCart() {
     const response = await servicesApi.getUserCart();
+    console.log("🚀 ~ getUserCart ~ response:", response)
     return response;
   }
 
