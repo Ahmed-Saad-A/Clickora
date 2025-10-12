@@ -4,7 +4,7 @@
  * For production, you should verify the token signature
  */
 
-export interface JWTPayload {
+export interface JWTPayload<T = unknown> {
   userId?: string;
   user?: {
     _id?: string;
@@ -15,7 +15,7 @@ export interface JWTPayload {
   };
   iat?: number;
   exp?: number;
-  [key: string]: any;
+  extra?: T;
 }
 
 /**
@@ -62,8 +62,9 @@ export function getUserIdFromToken(token: string): string | null {
   if (payload.userId) return payload.userId;
   if (payload.user?._id) return payload.user._id;
   if (payload.user?.id) return payload.user.id;
-  if (payload._id) return payload._id;
-  if (payload.id) return payload.id;
+if ("_id" in payload && typeof payload._id === "string") return payload._id;
+if ("id" in payload && typeof payload.id === "string") return payload.id;
+
 
   return null;
 }
