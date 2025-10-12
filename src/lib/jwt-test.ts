@@ -37,7 +37,7 @@ export function testJWTDecoding() {
     console.error("JWT decoding test failed:", error);
     return {
       success: false,
-      error: error.message
+      error: String(error)
     };
   }
 }
@@ -62,7 +62,7 @@ export function testWithRealToken(token: string) {
     console.error("Real token test failed:", error);
     return {
       success: false,
-      error: error.message
+      error: String(error)
     };
   }
 }
