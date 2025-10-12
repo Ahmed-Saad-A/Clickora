@@ -12,6 +12,7 @@ import {
   CreateCheckoutSessionRequest,
   CreateCheckoutSessionResponse
 } from "@/interfaces/order";
+import { BrandsResponse } from "@/types";
 
 
 
@@ -119,7 +120,7 @@ class ServicesApi {
     ).then((res) => res.json());
   }
 
-  // Order APIs
+
   async createCashOrder(orderData: CreateCashOrderRequest): Promise<CreateCashOrderResponse> {
     return await fetch(
       this.#baseUrl + "api/v1/orders",
@@ -162,6 +163,18 @@ class ServicesApi {
         headers: this.#getHeaders(),
       }
     ).then((res) => res.json());
+  }
+
+  async getBrands(): Promise<BrandsResponse> {
+    const res = await fetch(this.#baseUrl + "api/v1/brands", {
+    });
+    return res.json();
+  }
+
+  async getBrandDetails(brandId: string): Promise<SingleBrandResponse> {
+    const res = await fetch(this.#baseUrl + "api/v1/brands/" + brandId, {
+    });
+    return res.json();
   }
 }
 

@@ -123,7 +123,7 @@ export function Navbar() {
             )}
 
             {/* Shopping Cart */}
-            <Link href={"/Cart"}>
+            <Link href={"/cart"}>
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
                 <span className="absolute p-1 -top-1 -right-1 aspect-square w-fit rounded-full bg-primary text-xs text-primary-foreground flex items-center justify-center">
