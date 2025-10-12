@@ -153,6 +153,16 @@ class ServicesApi {
     ).then((res) => res.json());
   }
 
+  async signUp(name: string, email: string, password: string, rePassword: string, phone: string) {
+    return await fetch(
+      this.#baseUrl + "api/v1/auth/signup",
+      {
+        method: "POST",
+        body: JSON.stringify({ name, email, password, rePassword, phone }),
+        headers: this.#getHeaders(),
+      }
+    ).then((res) => res.json());
+  }
 }
 
 

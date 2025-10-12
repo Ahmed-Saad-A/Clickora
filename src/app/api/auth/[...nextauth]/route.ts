@@ -3,6 +3,23 @@ import { servicesApi } from "@/Services/api"
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 
+declare module "next-auth" {
+    interface User {
+        role?: string;
+        accessToken?: string;
+    }
+    interface Session {
+        accessToken?: string;
+        user: {
+            name?: string | null;
+            email?: string | null;
+            image?: string | null;
+            role?: string;
+        };
+    }
+}
+
+
 const handler = NextAuth({
     providers: [
         CredentialsProvider({
@@ -21,7 +38,7 @@ const handler = NextAuth({
                         name: res.user.name,
                         email: res.user.email,
                         role: res.user.role,
-                        token: res.token,
+                        accessToken: res.token,
                     }
                 }
                 // Return null if user data could not be retrieved
@@ -35,7 +52,7 @@ const handler = NextAuth({
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
-                token.token = user.token;
+                token.accessToken = user.accessToken;
                 token.role = user.role;
             }
 
@@ -43,10 +60,14 @@ const handler = NextAuth({
         },
 
         async session({ session, token }) {
-            session.token = token.token as string;
+            session.accessToken = token.accessToken as string;
             session.user.role = token.role as string;
             return session;
         }
+    },
+    session: {
+        strategy: 'jwt',
+        maxAge: 30 * 24 * 60 * 60, // 30 days
     },
     secret: process.env.AUTH_SECRET
 })
