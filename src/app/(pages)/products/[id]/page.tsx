@@ -22,6 +22,7 @@ import { servicesApi } from "@/Services/api";
 import { formatPrice } from "@/helpers/currency";
 import toast from "react-hot-toast";
 import { cartContext } from "@/context/cartContext";
+import { wishlistContext } from "@/context/wishlistContext";
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -31,6 +32,7 @@ export default function ProductDetailPage() {
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const { handleAddToCart } = useContext(cartContext);
+  const { toggleWishlistItem, isInWishlist } = useContext(wishlistContext);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   async function fetchProductDetails() {
@@ -207,8 +209,18 @@ export default function ProductDetailPage() {
               )}
               Add to Cart
             </Button>
-            <Button variant="outline" size="lg">
-              <Heart className="h-5 w-5" />
+            <Button 
+              variant="outline" 
+              size="lg"
+              onClick={() => toggleWishlistItem(product._id)}
+            >
+              <Heart 
+                className={`h-5 w-5 ${
+                  isInWishlist(product._id) 
+                    ? "fill-red-500 text-red-500" 
+                    : "text-muted-foreground hover:text-red-500"
+                }`} 
+              />
             </Button>
           </div>
 

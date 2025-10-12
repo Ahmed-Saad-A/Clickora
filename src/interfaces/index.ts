@@ -6,4 +6,5 @@ export * from './brand';
 export * from './category';
 export * from './product';
 export * from './address';
-export * from './order';
+// export * from './order';
+export * from './wishlist';

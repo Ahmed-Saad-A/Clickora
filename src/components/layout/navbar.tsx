@@ -4,12 +4,10 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   ShoppingCart,
-  Search,
-  User,
   Menu,
   X,
-  Car,
   Loader2,
+  Heart,
 } from "lucide-react";
 import { Button } from "@/components";
 import {
@@ -21,6 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import React, { useContext, useEffect, useState } from "react";
 import { cartContext } from "@/context/cartContext";
+import { wishlistContext } from "@/context/wishlistContext";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -28,6 +27,7 @@ export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { cartCount, isCartLoading } = useContext(cartContext);
+  const { wishlistItems, isWishlistLoading } = useContext(wishlistContext);
 
   const navItems = [
     { href: "/products", label: "Products" },
@@ -36,10 +36,10 @@ export function Navbar() {
   ];
 
   useEffect(() => {
-    // Basic auth check via localStorage token set on login
     try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
-      setIsAuthenticated(Boolean(token));
+      // const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+      // setIsAuthenticated(Boolean(token));
+      setIsAuthenticated(true);
     } catch {}
   }, [pathname]);
 
@@ -92,6 +92,40 @@ export function Navbar() {
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-2">
+
+            <Link href={"/wishlist"}>
+              <Button variant="ghost" size="icon" className="relative">
+                <Heart className="h-5 w-5" />
+                <span className="absolute p-1 -top-1 -right-1 aspect-square w-fit rounded-full bg-primary text-xs text-primary-foreground flex items-center justify-center">
+                  {isWishlistLoading ? (
+                    <Loader2 className="animate-spin" />
+                  ) : wishlistItems.length > 99 ? (
+                    "99+"
+                  ) : (
+                    wishlistItems.length
+                  )}
+                </span>
+                <span className="sr-only">Wishlist</span>
+              </Button>
+            </Link>
+
+            {/* Shopping Cart */}
+            <Link href={"/cart"}>
+              <Button variant="ghost" size="icon" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                <span className="absolute p-1 -top-1 -right-1 aspect-square w-fit rounded-full bg-primary text-xs text-primary-foreground flex items-center justify-center">
+                  {isCartLoading ? (
+                    <Loader2 className="animate-spin" />
+                  ) : cartCount! > 99 ? (
+                    "99+"
+                  ) : (
+                    cartCount
+                  )}
+                </span>
+                <span className="sr-only">Shopping cart</span>
+              </Button>
+            </Link>
+
             {/* Auth Buttons */}
             {isAuthenticated ? (
               <>
@@ -121,23 +155,6 @@ export function Navbar() {
                 )}
               </>
             )}
-
-            {/* Shopping Cart */}
-            <Link href={"/cart"}>
-              <Button variant="ghost" size="icon" className="relative">
-                <ShoppingCart className="h-5 w-5" />
-                <span className="absolute p-1 -top-1 -right-1 aspect-square w-fit rounded-full bg-primary text-xs text-primary-foreground flex items-center justify-center">
-                  {isCartLoading ? (
-                    <Loader2 className="animate-spin" />
-                  ) : cartCount! > 99 ? (
-                    "99+"
-                  ) : (
-                    cartCount
-                  )}
-                </span>
-                <span className="sr-only">Shopping cart</span>
-              </Button>
-            </Link>
 
             {/* Mobile Menu */}
             <Button
