@@ -12,6 +12,7 @@ export default async function Cart() {
   }
 
   const response = await getUserCart();
+  console.log("🚀 ~ Cart ~ response:", response)
 
   return (
     <div className="container mx-auto px-4 py-8">

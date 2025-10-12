@@ -1,39 +1,37 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Package, Calendar, CreditCard, Truck, CheckCircle, Clock, XCircle } from "lucide-react";
 import { Button } from "@/components";
 import { servicesApi } from "@/Services/api";
+import { useUserIdFromToken } from "@/hooks/useUserIdFromToken";
+import type { Order } from "@/interfaces/order";
 import Link from "next/link";
 
-interface Order {
-  _id: string;
-  cartId: string;
-  totalOrderPrice: number;
-  totalAfterDiscount: number;
-  paymentMethodType: string;
-  isPaid: boolean;
-  isDelivered: boolean;
-  createdAt: string;
-}
-
 interface UserOrdersProps {
-  userId: string;
+  userId?: string; // Make optional since we'll get it from token
 }
 
-export function UserOrders({ userId }: UserOrdersProps) {
+export function UserOrders({ userId: propUserId }: UserOrdersProps) {
+  const userIdFromToken = useUserIdFromToken();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchOrders();
-  }, [userId]);
+  // Use userId from props if provided, otherwise use token
+  const userId = propUserId || userIdFromToken;
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
+    if (!userId) {
+      setError("User ID not available");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
+      console.log("Fetching orders for user ID:", userId);
       const response = await servicesApi.getUserOrders(userId);
       setOrders(response.data);
     } catch (err) {
@@ -42,7 +40,13 @@ export function UserOrders({ userId }: UserOrdersProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    if (userId) {
+      fetchOrders();
+    }
+  }, [userId, fetchOrders]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -127,7 +131,7 @@ export function UserOrders({ userId }: UserOrdersProps) {
           <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-foreground mb-2">No Orders Yet</h3>
           <p className="text-muted-foreground mb-4">
-            You haven `'' t placed any orders yet. Start shopping to see your orders here.
+            You haven not placed any orders yet. Start shopping to see your orders here.
           </p>
           <Button asChild>
             <Link href="/products">Start Shopping</Link>
@@ -164,13 +168,11 @@ export function UserOrders({ userId }: UserOrdersProps) {
               </div>
               <div className="text-right">
                 <p className="font-semibold text-foreground">
-                  {formatCurrency(order.totalAfterDiscount)}
+                  {formatCurrency(order.totalOrderPrice)}
                 </p>
-                {order.totalAfterDiscount !== order.totalOrderPrice && (
-                  <p className="text-sm text-muted-foreground line-through">
-                    {formatCurrency(order.totalOrderPrice)}
-                  </p>
-                )}
+                <p className="text-sm text-muted-foreground">
+                  {order.cartItems?.length || 0} item{(order.cartItems?.length || 0) !== 1 ? 's' : ''}
+                </p>
               </div>
             </div>
 

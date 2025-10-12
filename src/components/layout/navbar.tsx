@@ -27,11 +27,12 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { cartCount, isCartLoading } = useContext(cartContext);
   const { wishlistItems, isWishlistLoading } = useContext(wishlistContext);
 
   const isAuthenticated = !!session;
+  const isLoading = status === "loading";
 
   const navItems = [
     { href: "/products", label: "Products" },
@@ -46,6 +47,9 @@ export function Navbar() {
   const handleSignUp = () => {
     router.replace("/auth/register");
   };
+
+  console.log("cartCount in Navbar:", cartCount, "isCartLoading:", isCartLoading);
+
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -124,7 +128,11 @@ export function Navbar() {
 
 
             {/* User Account Dropdown */}
-            {isAuthenticated ? (
+            {isLoading ? (
+              <div className="flex items-center space-x-2">
+                <div className="h-8 w-16 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            ) : isAuthenticated ? (
               <UserDropdown onLogout={() => signOut()} />
             ) : (
               <>

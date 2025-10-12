@@ -11,7 +11,7 @@ import {
   CartProduct as CartProductI,
   CartResponse,
 } from "@/interfaces/Cart";
-import { servicesApi } from "@/Services/api";
+import { useApiService } from "@/hooks";
 import { useDebounce } from "@uidotdev/usehooks";
 
 interface CartProductProps {
@@ -22,19 +22,20 @@ interface CartProductProps {
 const CartProduct = ({ item, setInnerResponse }: CartProductProps) => {
   const [isRemoving, setIsRemoving] = useState(false);
   const [itemCount, setItemCount] = useState(item.count);
+  const apiService = useApiService();
 
   const delayItemCount = useDebounce(itemCount, 500);
 
   async function handleRemoveItem() {
     setIsRemoving(true);
-    const newResponse = await servicesApi.removeCartItem(item.product._id);
+    const newResponse = await apiService.removeCartItem(item.product._id);
     setInnerResponse(newResponse);
     setIsRemoving(false);
   }
 
   async function handleUpdateCount(count: number) {
 
-    const response = await servicesApi.updateCartProductCount(item.product._id, count);
+    const response = await apiService.updateCartProductCount(item.product._id, count);
     
     setInnerResponse(response);
     console.log("🚀 ~ handleUpdateCount ~ response:", response.data.products);

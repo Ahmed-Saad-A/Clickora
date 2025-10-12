@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui";
-import { servicesApi } from "@/Services/api";
+import { useApiService } from "@/hooks";
 import { Loader2, Eye, EyeOff, UserPlus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { set, z } from "zod";
@@ -18,6 +18,7 @@ type RegisterFormValues = z.infer<typeof RegisterSchema>;
 
 const RegisterPage = () => {
   const router = useRouter();
+  const apiService = useApiService();
   const [showPassword, setShowPassword] = useState(false);
   const [showRePassword, setShowRePassword] = useState(false);
   const {
@@ -38,7 +39,7 @@ const RegisterPage = () => {
 
   async function onSubmit(values: RegisterFormValues) {
     try {
-      const res = await servicesApi.signUp(
+      const res = await apiService.signUp(
         values.name,
         values.email,
         values.password,
