@@ -8,8 +8,11 @@ export const useApiService = () => {
   const token = useAuthToken();
 
   useEffect(() => {
-    servicesApi.setToken(token);
+    if (token) {
+      servicesApi.setToken(token);
+    }
   }, [token]);
 
   return servicesApi;
 };
+ 

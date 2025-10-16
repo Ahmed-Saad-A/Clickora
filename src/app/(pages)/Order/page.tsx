@@ -2,16 +2,16 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  Package, 
-  CreditCard, 
-  Truck, 
-  CheckCircle, 
-  Clock, 
-  XCircle, 
-  ArrowLeft, 
-  MapPin, 
-  Phone, 
+import {
+  Package,
+  CreditCard,
+  Truck,
+  CheckCircle,
+  Clock,
+  XCircle,
+  ArrowLeft,
+  MapPin,
+  Phone,
   Calendar,
   DollarSign,
   ShoppingBag,
@@ -42,13 +42,16 @@ const Order = () => {
 
   const isAuthenticated = !!session;
   const authLoading = status === "loading";
+  console.log("Session:", session);
+  console.log("Access token:", session?.accessToken);
 
   const fetchOrders = useCallback(async () => {
+
     try {
       setIsLoading(true);
       setError(null);
-      
-      // Get user ID from decoded token
+
+      // Get user ID from  decoded token
       const userId = userIdFromToken;
       if (!userId) {
         setError("User ID not found in token");
@@ -57,23 +60,15 @@ const Order = () => {
         console.log("Access token:", session?.accessToken);
         return;
       }
-      
+
       console.log("Using user ID from token:", userId);
       console.log("Full session data:", session);
-      
+
       const response = await servicesApi.getUserOrders(userId);
+      setOrders(Array.isArray(response) ? response : []);
+
       console.log("API Response:", response);
-      
-      // Add defensive checks for the response structure
-      if (response && Array.isArray(response.data)) {
-        setOrders(response.data);
-      } else if (response && Array.isArray(response)) {
-        // Handle case where response is directly an array
-        setOrders(response);
-      } else {
-        console.warn("Unexpected API response structure:", response);
-        setOrders([]);
-      }
+
     } catch (err) {
       setError("Failed to load orders");
       console.error("Error fetching orders:", err);
@@ -90,10 +85,11 @@ const Order = () => {
   }, [isAuthenticated, authLoading, router]);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && userIdFromToken) {
       fetchOrders();
     }
-  }, [isAuthenticated, fetchOrders]);
+  }, [isAuthenticated, userIdFromToken, fetchOrders]);
+
 
   // Filter and sort orders
   useEffect(() => {
@@ -101,9 +97,9 @@ const Order = () => {
 
     // Search filter
     if (searchTerm) {
-      filtered = filtered.filter(order => 
+      filtered = filtered.filter(order =>
         order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.cartItems?.some(item => 
+        order.cartItems?.some(item =>
           item.product?.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.product?.brand?.name.toLowerCase().includes(searchTerm.toLowerCase())
         )
@@ -295,7 +291,7 @@ const Order = () => {
                   />
                 </div>
               </div>
-              
+
               {/* Status Filter */}
               <div className="flex items-center space-x-2">
                 <Filter className="h-4 w-4 text-muted-foreground" />
@@ -440,7 +436,7 @@ const Order = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Payment Information */}
                   <div className="space-y-3">
                     <h4 className="font-semibold text-foreground flex items-center space-x-2">

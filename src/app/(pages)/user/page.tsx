@@ -5,8 +5,9 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { User as UserIcon, Package, Settings, ArrowLeft } from "lucide-react";
 import { Button } from "@/components";
-import { ProfileInfo, UserOrders, UpdatePassword, UpdateProfile } from "@/components/user";
+import { ProfileInfo, UpdatePassword, UpdateProfile } from "@/components/user";
 import { useSession } from "next-auth/react";
+import Order from "../order/page";
 
 const User = () => {
   const searchParams = useSearchParams();
@@ -73,7 +74,7 @@ const User = () => {
           <ProfileInfo onEdit={handleProfileEdit} />
         );
       case "orders":
-        return <UserOrders userId={session.user.email || ""} />;
+        return <Order />;
       case "settings":
         return <UpdatePassword />;
       default:

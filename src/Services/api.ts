@@ -16,34 +16,39 @@ import {
 import { BrandsResponse } from "@/types";
 
 
-
-
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "https://ecommerce.routemisr.com/";
 
 class ServicesApi {
-  #baseUrl: string = "";
-  #token: string | null = null;
-  
+  #baseUrl: string;
+  #token: string | null;
+
   constructor() {
-    this.#baseUrl = baseUrl || "https://ecommerce.routemisr.com/";
+    this.#baseUrl = baseUrl;
+    this.#token = null;
   }
 
   setToken(token: string | null) {
     this.#token = token;
   }
 
-  #getHeaders() {
-    const headers: Record<string, string> = {
-      "content-type": "application/json",
-    };
-    
-    if (this.#token) {
-      headers.token = this.#token;
-    }
-    
-    return headers;
+  // Debug helper to verify the token currently set on the singleton
+  getTokenForDebug() {
+    return this.#token;
   }
 
+  async #getHeaders() {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.#token) {
+      // Send both headers temporarily while diagnosing backend expectations
+      headers.Authorization = `Bearer ${this.#token}`;
+      headers.token = this.#token;
+    }
+
+    return headers;
+  }
   async getAllProducts(): Promise<ProductsResponse> {
     const res = await fetch(this.#baseUrl + "api/v1/products", {
       headers: await this.#getHeaders(),
@@ -165,13 +170,12 @@ class ServicesApi {
   }
 
   async getUserOrders(userId: string): Promise<{ data: Order[] }> {
-    return await fetch(
-      this.#baseUrl + "api/v1/orders/user/" + userId,
-      {
-        headers: await this.#getHeaders(),
-      }
-    ).then((res) => res.json());
+    const res = await fetch(this.#baseUrl + "api/v1/orders/user/" + userId, {
+      headers: await this.#getHeaders(),
+    });
+    return await res.json();
   }
+
 
   async getBrands(): Promise<BrandsResponse> {
     const res = await fetch(this.#baseUrl + "api/v1/brands", {
@@ -234,7 +238,9 @@ class ServicesApi {
           "content-type": "application/json",
         },
       }
-    ).then((res) => res.json());
+    ).then((res) => {
+      return res.json();
+    });
   }
 
   async signUp(name: string, email: string, password: string, rePassword: string, phone: string) {
