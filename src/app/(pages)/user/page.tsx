@@ -7,7 +7,7 @@ import { User as UserIcon, Package, Settings, ArrowLeft } from "lucide-react";
 import { Button } from "@/components";
 import { ProfileInfo, UpdatePassword, UpdateProfile } from "@/components/user";
 import { useSession } from "next-auth/react";
-import Order from "../order/page";
+import Order from "@/app/(pages)/order/page";
 
 const User = () => {
   const searchParams = useSearchParams();
