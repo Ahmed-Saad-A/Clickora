@@ -41,8 +41,8 @@ const InnerCart = ({ response }: InnerCartProps) => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-4">Shopping Cart</h1>
         <p className="text-muted-foreground">
-          {response.numOfCartItems} item
-          {response.numOfCartItems !== 1 ? "s" : ""} in your cart
+          {innerResponse.numOfCartItems} item
+          {innerResponse.numOfCartItems !== 1 ? "s" : ""} in your cart
         </p>
       </div>
 
@@ -50,8 +50,8 @@ const InnerCart = ({ response }: InnerCartProps) => {
         {/* Cart Items */}
         <div className="lg:col-span-2">
           <div className="space-y-4">
-            {response?.data?.products?.length ? (
-              response.data.products.map((item) => (
+            {innerResponse?.data?.products?.length ? (
+              innerResponse.data.products.map((item) => (
                 <CartProduct key={item._id} item={item} setInnerResponse={setInnerResponse} />
               ))
             ) : (
@@ -79,8 +79,8 @@ const InnerCart = ({ response }: InnerCartProps) => {
 
             <div className="space-y-2 mb-4">
               <div className="flex justify-between">
-                <span>Subtotal ({response.numOfCartItems} items)</span>
-                <span>{formatPrice(response?.data?.totalCartPrice ?? 0)}</span>
+                <span>Subtotal ({innerResponse.numOfCartItems} items)</span>
+                <span>{formatPrice(innerResponse?.data?.totalCartPrice ?? 0)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
@@ -92,7 +92,7 @@ const InnerCart = ({ response }: InnerCartProps) => {
 
             <div className="flex justify-between font-semibold text-lg mb-6">
               <span>Total</span>
-              <span>{formatPrice(response?.data?.totalCartPrice ?? 0)}</span>
+              <span>{formatPrice(innerResponse?.data?.totalCartPrice ?? 0)}</span>
             </div>
 
             <Button className="w-full" size="lg" asChild>

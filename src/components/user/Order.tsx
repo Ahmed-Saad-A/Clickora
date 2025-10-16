@@ -217,10 +217,12 @@ const Order = () => {
               Back
             </Button>
           </div>
-          <h1 className="text-3xl font-bold text-foreground">My Orders</h1>
-          <p className="text-muted-foreground">
-            View and track your order history
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">My Orders</h1>
+              <p className="text-muted-foreground">View and track your order history</p>
+            </div>
+          </div>
         </div>
 
         {/* Order Statistics */}
@@ -380,7 +382,7 @@ const Order = () => {
                 className="bg-card rounded-lg border border-border p-6 hover:shadow-lg transition-all duration-200"
               >
                 {/* Order Header */}
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                   <div className="flex items-center space-x-4">
                     <div className={`p-2 rounded-full ${getStatusColor(order.isPaid, order.isDelivered).split(' ')[1]}`}>
                       {getStatusIcon(order.isPaid, order.isDelivered)}
@@ -395,7 +397,7 @@ const Order = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-left sm:text-right">
                     <p className="font-bold text-foreground text-xl">
                       {formatCurrency(order.totalOrderPrice || 0)}
                     </p>
@@ -510,17 +512,17 @@ const Order = () => {
 
                 {/* Cart Items */}
                 <div className="border-t border-border pt-6">
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                     <h4 className="font-semibold text-foreground flex items-center space-x-2">
                       <Package className="h-4 w-4" />
                       <span>Order Items ({order.cartItems?.length || 0})</span>
                     </h4>
-                    <div className="flex space-x-2">
-                      <Button variant="outline" size="sm">
+                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto">
                         <Eye className="h-4 w-4 mr-2" />
                         View Details
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto">
                         <Download className="h-4 w-4 mr-2" />
                         Invoice
                       </Button>
@@ -529,8 +531,8 @@ const Order = () => {
                   <div className="space-y-4">
                     {order.cartItems?.length ? (
                       order.cartItems.map((item) => (
-                        <div key={item._id} className="flex items-center space-x-4 p-4 bg-muted/30 rounded-lg">
-                          <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                        <div key={item._id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-muted/30 rounded-lg">
+                          <div className="relative sm:text-center w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
                             <Image
                               src={item.product?.imageCover || '/placeholder-image.jpg'}
                               alt={item.product?.title || 'Product'}
@@ -556,17 +558,17 @@ const Order = () => {
                               </div>
                             )}
                           </div>
-                          <div className="text-right flex-shrink-0">
-                            <div className="flex items-center space-x-4">
-                              <div className="text-center">
+                          <div className="text-left sm:text-right sm:flex-shrink-0">
+                            <div className="flex justify-between sm:justify-end items-center gap-4">
+                              <div className="text-left sm:text-center">
                                 <p className="text-sm text-muted-foreground">Quantity</p>
                                 <p className="font-semibold text-foreground">{item.count || 0}</p>
                               </div>
-                              <div className="text-center">
+                              <div className="text-left sm:text-center">
                                 <p className="text-sm text-muted-foreground">Price</p>
                                 <p className="font-semibold text-foreground">{formatCurrency(item.price || 0)}</p>
                               </div>
-                              <div className="text-center">
+                              <div className="text-left sm:text-center">
                                 <p className="text-sm text-muted-foreground">Total</p>
                                 <p className="font-bold text-foreground">{formatCurrency((item.price || 0) * (item.count || 0))}</p>
                               </div>
