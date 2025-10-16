@@ -28,13 +28,6 @@ const RegisterPage = () => {
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(RegisterSchema),
     mode: 'onBlur',
-    defaultValues: {
-      name: "Ahmed Saad",
-      email: "ahmed.lab505@gmail.com",
-      password: "Ahmed@123",
-      rePassword: "Ahmed@123",
-      phone: "01025363285",
-    },
   });
 
   async function onSubmit(values: RegisterFormValues) {

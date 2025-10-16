@@ -93,15 +93,17 @@ export function Navbar() {
             <Link href={"/wishlist"}>
               <Button variant="ghost" size="icon" className="relative">
                 <Heart className="h-5 w-5" />
-                <span className="absolute p-1 -top-1 -right-1 aspect-square w-fit rounded-full bg-primary text-xs text-primary-foreground flex items-center justify-center">
-                  {isWishlistLoading ? (
-                    <Loader2 className="animate-spin" />
-                  ) : wishlistItems.length > 99 ? (
-                    "99+"
-                  ) : (
-                    wishlistItems.length
-                  )}
-                </span>
+                {(isWishlistLoading || wishlistItems.length > 0) && (
+                  <span className="absolute p-1 -top-1 -right-1 aspect-square w-fit rounded-full bg-primary text-xs text-primary-foreground flex items-center justify-center">
+                    {isWishlistLoading ? (
+                      <Loader2 className="animate-spin" />
+                    ) : wishlistItems.length > 99 ? (
+                      "99+"
+                    ) : (
+                      wishlistItems.length
+                    )}
+                  </span>
+                )}
                 <span className="sr-only">Wishlist</span>
               </Button>
             </Link>
@@ -110,18 +112,21 @@ export function Navbar() {
             <Link href={"/cart"}>
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
-                <span className="absolute p-1 -top-1 -right-1 aspect-square w-fit rounded-full bg-primary text-xs text-primary-foreground flex items-center justify-center">
-                  {isCartLoading ? (
-                    <Loader2 className="animate-spin" />
-                  ) : cartCount! > 99 ? (
-                    "99+"
-                  ) : (
-                    cartCount
-                  )}
-                </span>
+                {(isCartLoading || (cartCount && cartCount > 0)) && (
+                  <span className="absolute p-1 -top-1 -right-1 aspect-square w-fit rounded-full bg-primary text-xs text-primary-foreground flex items-center justify-center">
+                    {isCartLoading ? (
+                      <Loader2 className="animate-spin" />
+                    ) : cartCount! > 99 ? (
+                      "99+"
+                    ) : (
+                      cartCount
+                    )}
+                  </span>
+                )}
                 <span className="sr-only">Shopping cart</span>
               </Button>
             </Link>
+
 
 
             {/* User Account Dropdown */}
