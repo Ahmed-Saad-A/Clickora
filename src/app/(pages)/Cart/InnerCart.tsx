@@ -22,10 +22,7 @@ const InnerCart = ({ response }: InnerCartProps) => {
   const apiService = useApiService();
 
 
-  useEffect(() => {
-    setCartCount!(innerResponse.numOfCartItems);
-  }, [innerResponse]);
-
+  
   async function handleClearCart() {
     setIsClearingCart(true);
     const response = await apiService.clearCart();
@@ -33,7 +30,10 @@ const InnerCart = ({ response }: InnerCartProps) => {
     setInnerResponse({ ...innerResponse, numOfCartItems: 0 });
     setIsClearingCart(false);
   }
-
+  
+  useEffect(() => {
+    setCartCount!(innerResponse.numOfCartItems);
+  }, [innerResponse, setCartCount]);
 
   return (
     <>

@@ -25,29 +25,27 @@ export interface JWTPayload<T = unknown> {
  */
 export function decodeJWT(token: string): JWTPayload | null {
   try {
-    // JWT tokens have 3 parts separated by dots
-    const parts = token.split('.');
+    const parts = token.split(".");
     if (parts.length !== 3) {
-      console.error('Invalid JWT token format');
+      console.error("Invalid JWT token format");
       return null;
     }
 
-    // Decode the payload (second part)
     const payload = parts[1];
-    
-    // Add padding if needed for base64 decoding
-    const paddedPayload = payload + '='.repeat((4 - payload.length % 4) % 4);
-    
-    // Decode base64
-    const decodedPayload = atob(paddedPayload);
-    
-    // Parse JSON
+    const paddedPayload = payload + "=".repeat((4 - payload.length % 4) % 4);
+
+    const decodedPayload =
+      typeof window === "undefined"
+        ? Buffer.from(paddedPayload, "base64").toString("utf-8")
+        : atob(paddedPayload);
+
     return JSON.parse(decodedPayload);
   } catch (error) {
-    console.error('Error decoding JWT token:', error);
+    console.error("Error decoding JWT token:", error);
     return null;
   }
 }
+
 
 /**
  * Extract user ID from JWT token
@@ -62,8 +60,8 @@ export function getUserIdFromToken(token: string): string | null {
   if (payload.userId) return payload.userId;
   if (payload.user?._id) return payload.user._id;
   if (payload.user?.id) return payload.user.id;
-if ("_id" in payload && typeof payload._id === "string") return payload._id;
-if ("id" in payload && typeof payload.id === "string") return payload.id;
+  if ("_id" in payload && typeof payload._id === "string") return payload._id;
+  if ("id" in payload && typeof payload.id === "string") return payload.id;
 
 
   return null;

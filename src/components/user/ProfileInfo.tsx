@@ -16,8 +16,6 @@ export function ProfileInfo({ onEdit }: ProfileInfoProps) {
   const [error, setError] = useState<string | null>(null);
 
   const user = session?.user;
-  console.log("🚀 ~ ProfileInfo ~ user:", user)
-
   if (isLoading) {
     return (
       <div className="bg-card rounded-lg border border-border p-6">
