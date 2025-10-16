@@ -282,16 +282,14 @@ class ServicesApi {
     ).then((res) => res.json());
   }
 
-  async updatePassword(currentPassword: string, Password: string, rePassword: string) {
-    return await fetch(
-      this.#baseUrl + "api/v1/users/changeMyPassword",
-      {
-        method: "PUT",
-        body: JSON.stringify({ currentPassword, password: Password, rePassword }),
-        headers: await this.#getHeaders(),
-      }
-    ).then((res) => res.json());
+  async updatePassword(currentPassword: string, password: string, rePassword: string) {
+    return await fetch(this.#baseUrl + "api/v1/users/changeMyPassword", {
+      method: "PUT",
+      headers: await this.#getHeaders(),
+      body: JSON.stringify({ currentPassword, password, rePassword }),
+    }).then((res) => res.json());
   }
+
 
   async resetPassword(email: string, newPassword: string) {
     return await fetch(

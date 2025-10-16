@@ -82,26 +82,6 @@ export function ProfileInfo({ onEdit }: ProfileInfoProps) {
             <p className="text-lg font-medium text-foreground">{user?.email}</p>
           </div>
         </div>
-
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <Phone className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Phone Number</p>
-            <p className="text-lg font-medium text-foreground">{user?.phone || "Not provided"}</p>
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <Calendar className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Role</p>
-            <p className="text-lg font-medium text-foreground capitalize">{user?.role || "User"}</p>
-          </div>
-        </div>
       </div>
     </div>
   );
