@@ -9,3 +9,4 @@ export const useAuthToken = () => {
 
   return session?.accessToken || null;
 };
+ 

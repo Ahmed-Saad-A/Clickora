@@ -8,7 +8,7 @@ import {
   Truck,
   CheckCircle,
   Clock,
-  XCircle,
+  XCircle, 
   ArrowLeft,
   MapPin,
   Phone,
@@ -25,15 +25,15 @@ import { Button } from "@/components";
 import { servicesApi } from "@/Services/api";
 import { useSession } from "next-auth/react";
 import { useUserIdFromToken } from "@/hooks/useUserIdFromToken";
-import type { Order } from "@/interfaces/order";
+import type { Order as OrderType } from "@/interfaces/order";
 import Image from "next/image";
 
 const Order = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const userIdFromToken = useUserIdFromToken();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<OrderType[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<OrderType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
