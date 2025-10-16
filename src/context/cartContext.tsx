@@ -38,8 +38,6 @@ export default function CartContextProvider({
   const [isCartLoading, setIsCartLoading] = useState<boolean>(true);
   const apiService = useApiService();
   const { data: session, status } = useSession();
-  console.log("🚀 ~ CartContextProvider ~ status:", status)
-  console.log("🚀 ~ CartContextProvider ~ session:", session)
 
   const getCart = useCallback(async (): Promise<void> => {
     setIsCartLoading(true);
@@ -101,7 +99,6 @@ export default function CartContextProvider({
       } catch (e) {
       }
     } catch (err) {
-      console.error("handleAddToCart error:", err);
       toast.error("Failed to add to cart");
     } finally {
       setIsAddingToCart(false);

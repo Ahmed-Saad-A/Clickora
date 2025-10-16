@@ -3,13 +3,16 @@
 import { useState } from "react";
 import { Eye, EyeOff, Lock, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components";
-import { servicesApi } from "@/Services/api";
+import { useApiService } from "@/hooks";
+import { useSession } from "next-auth/react";
 
 interface UpdatePasswordProps {
   onSuccess?: () => void;
 }
 
 export function UpdatePassword({ onSuccess }: UpdatePasswordProps) {
+  const apiService = useApiService();
+  const { status } = useSession();
   const [formData, setFormData] = useState({
     currentPassword: "",
     Password: "",
@@ -72,18 +75,26 @@ export function UpdatePassword({ onSuccess }: UpdatePasswordProps) {
       return;
     }
 
+    if (status === "loading") return;
+    if (status === "unauthenticated") {
+      setMessage({ type: "error", text: "Please login again" });
+      return;
+    }
+
     setIsLoading(true);
     setMessage(null);
 
     try {
-      const response = await servicesApi.updatePassword(
+      console.log("🔐 Token used:", apiService.getTokenForDebug());
+      const response = await apiService.updatePassword(
         formData.currentPassword,
         formData.Password,
         formData.rePassword
       );
       console.log("🚀 ~ handleSubmit ~ response:", response);
+      console.log("🔐 Token used:", apiService.getTokenForDebug());
 
-      if (response.status === "success") {
+      if (response.message === "success") {
         setMessage({ type: "success", text: "Password updated successfully!" });
         setFormData({
           currentPassword: "",
