@@ -28,10 +28,6 @@ const LoginPage = () => {
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     mode: 'onBlur',
-    defaultValues: {
-      email: "ahmed.lab505@gmail.com",
-      password: "Ahmed@1234",
-    },
   });
 
   async function onSubmit(values: LoginFormValues) {
